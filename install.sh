@@ -307,11 +307,9 @@ jellystat_start()
 
     echo "Starting ${name}..."
 
-    # Source environment file
+    # Source environment file (filter out comments and empty lines)
     if [ -f "${jellystat_env}" ]; then
-        set -a
-        . "${jellystat_env}"
-        set +a
+        export $(grep -v '^#' "${jellystat_env}" | grep -v '^$' | xargs)
     fi
 
     cd "${jellystat_dir}"
