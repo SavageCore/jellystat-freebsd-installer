@@ -1,0 +1,9 @@
+# Handle line endings automatically
+* text=auto
+
+# Shell scripts should always have LF line endings
+*.sh text eol=lf
+
+# Keep Windows line endings for batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
