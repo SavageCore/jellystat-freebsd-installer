@@ -307,9 +307,15 @@ jellystat_start()
 
     echo "Starting ${name}..."
 
-    # Source environment file (filter out comments and empty lines)
+    # Source environment file (read line by line, skip comments and empty lines)
     if [ -f "${jellystat_env}" ]; then
-        export $(grep -v '^#' "${jellystat_env}" | grep -v '^$' | xargs)
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Skip comments and empty lines
+            case "$line" in
+                \#*|"") continue ;;
+            esac
+            export "$line"
+        done < "${jellystat_env}"
     fi
 
     cd "${jellystat_dir}"
