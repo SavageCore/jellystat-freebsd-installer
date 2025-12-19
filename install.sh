@@ -45,25 +45,25 @@ NC='\033[0m' # No Color
 #####################################################################
 
 print_banner() {
-    echo "${BLUE}"
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║         Jellystat Installer for TrueNAS Core / FreeBSD        ║"
-    echo "║                                                               ║"
-    echo "║  A free and open source Statistics App for Jellyfin           ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    echo "${NC}"
+    printf "%b\n" "${BLUE}"
+    printf "%s\n" "╔═══════════════════════════════════════════════════════════════╗"
+    printf "%s\n" "║         Jellystat Installer for TrueNAS Core / FreeBSD        ║"
+    printf "%s\n" "║                                                               ║"
+    printf "%s\n" "║  A free and open source Statistics App for Jellyfin           ║"
+    printf "%s\n" "╚═══════════════════════════════════════════════════════════════╝"
+    printf "%b\n" "${NC}"
 }
 
 log_info() {
-    echo "${GREEN}[INFO]${NC} $1"
+    printf "%b[INFO]%b %s\n" "${GREEN}" "${NC}" "$1"
 }
 
 log_warn() {
-    echo "${YELLOW}[WARN]${NC} $1"
+    printf "%b[WARN]%b %s\n" "${YELLOW}" "${NC}" "$1"
 }
 
 log_error() {
-    echo "${RED}[ERROR]${NC} $1"
+    printf "%b[ERROR]%b %s\n" "${RED}" "${NC}" "$1"
 }
 
 check_root() {
@@ -390,37 +390,37 @@ print_summary() {
     # Get the jail/server IP
     IP_ADDR=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}')
 
-    echo ""
-    echo "${GREEN}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo "${GREEN}║              Installation Complete!                           ║${NC}"
-    echo "${GREEN}╚═══════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    echo "${BLUE}Access Jellystat:${NC}"
-    echo "  URL: http://${IP_ADDR}:${JELLYSTAT_PORT}"
-    echo ""
-    echo "${BLUE}PostgreSQL Credentials:${NC}"
-    echo "  Host:     ${POSTGRES_HOST}"
-    echo "  Port:     ${POSTGRES_PORT}"
-    echo "  Database: ${POSTGRES_DB}"
-    echo "  User:     ${POSTGRES_USER}"
-    echo "  Password: ${POSTGRES_PASSWORD}"
-    echo ""
-    echo "${BLUE}Important Files:${NC}"
-    echo "  Installation:  ${JELLYSTAT_DIR}"
-    echo "  Config:        ${JELLYSTAT_DIR}/.env"
-    echo "  Log:           /var/log/jellystat.log"
-    echo "  Service:       /usr/local/etc/rc.d/jellystat"
-    echo ""
-    echo "${BLUE}Service Commands:${NC}"
-    echo "  Start:    service jellystat start"
-    echo "  Stop:     service jellystat stop"
-    echo "  Restart:  service jellystat restart"
-    echo "  Status:   service jellystat status"
-    echo ""
-    echo "${YELLOW}IMPORTANT: Save the PostgreSQL password shown above!${NC}"
-    echo ""
-    echo "${GREEN}Please visit the URL above to complete the setup.${NC}"
-    echo ""
+    printf "\n"
+    printf "%b╔═══════════════════════════════════════════════════════════════╗%b\n" "${GREEN}" "${NC}"
+    printf "%b║              Installation Complete!                           ║%b\n" "${GREEN}" "${NC}"
+    printf "%b╚═══════════════════════════════════════════════════════════════╝%b\n" "${GREEN}" "${NC}"
+    printf "\n"
+    printf "%bAccess Jellystat:%b\n" "${BLUE}" "${NC}"
+    printf "  URL: http://%s:%s\n" "${IP_ADDR}" "${JELLYSTAT_PORT}"
+    printf "\n"
+    printf "%bPostgreSQL Credentials:%b\n" "${BLUE}" "${NC}"
+    printf "  Host:     %s\n" "${POSTGRES_HOST}"
+    printf "  Port:     %s\n" "${POSTGRES_PORT}"
+    printf "  Database: %s\n" "${POSTGRES_DB}"
+    printf "  User:     %s\n" "${POSTGRES_USER}"
+    printf "  Password: %s\n" "${POSTGRES_PASSWORD}"
+    printf "\n"
+    printf "%bImportant Files:%b\n" "${BLUE}" "${NC}"
+    printf "  Installation:  %s\n" "${JELLYSTAT_DIR}"
+    printf "  Config:        %s/.env\n" "${JELLYSTAT_DIR}"
+    printf "  Log:           /var/log/jellystat.log\n"
+    printf "  Service:       /usr/local/etc/rc.d/jellystat\n"
+    printf "\n"
+    printf "%bService Commands:%b\n" "${BLUE}" "${NC}"
+    printf "  Start:    service jellystat start\n"
+    printf "  Stop:     service jellystat stop\n"
+    printf "  Restart:  service jellystat restart\n"
+    printf "  Status:   service jellystat status\n"
+    printf "\n"
+    printf "%bIMPORTANT: Save the PostgreSQL password shown above!%b\n" "${YELLOW}" "${NC}"
+    printf "\n"
+    printf "%bPlease visit the URL above to complete the setup.%b\n" "${GREEN}" "${NC}"
+    printf "\n"
 }
 
 #####################################################################

@@ -20,15 +20,15 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 log_info() {
-    echo "${GREEN}[INFO]${NC} $1"
+    printf "%b[INFO]%b %s\n" "${GREEN}" "${NC}" "$1"
 }
 
 log_warn() {
-    echo "${YELLOW}[WARN]${NC} $1"
+    printf "%b[WARN]%b %s\n" "${YELLOW}" "${NC}" "$1"
 }
 
 log_error() {
-    echo "${RED}[ERROR]${NC} $1"
+    printf "%b[ERROR]%b %s\n" "${RED}" "${NC}" "$1"
 }
 
 check_root() {
@@ -41,12 +41,12 @@ check_root() {
 main() {
     check_root
 
-    echo "${BLUE}"
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║         Jellystat Updater for TrueNAS Core / FreeBSD          ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    echo "${NC}"
-    echo ""
+    printf "%b\n" "${BLUE}"
+    printf "%s\n" "╔═══════════════════════════════════════════════════════════════╗"
+    printf "%s\n" "║         Jellystat Updater for TrueNAS Core / FreeBSD          ║"
+    printf "%s\n" "╚═══════════════════════════════════════════════════════════════╝"
+    printf "%b\n" "${NC}"
+    printf "\n"
 
     # Check if Jellystat is installed
     if [ ! -d "${JELLYSTAT_DIR}" ]; then
