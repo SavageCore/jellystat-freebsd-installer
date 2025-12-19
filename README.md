@@ -46,7 +46,7 @@ jexec <jail_id> /bin/sh
 pkg install -y git
 
 # Clone this repository
-git clone https://github.com/YOUR_USERNAME/jellystat-freebsd-installer.git
+git clone https://github.com/SavageCore/jellystat-freebsd-installer.git
 cd jellystat-freebsd-installer
 
 # Make scripts executable
