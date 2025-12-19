@@ -88,7 +88,7 @@ main() {
     # Confirm update
     printf "Do you want to update Jellystat? [y/N]: "
     read -r response
-    
+
     if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
         echo "Update cancelled."
         exit 0

@@ -51,7 +51,7 @@ main() {
     echo ""
     printf "Do you want to continue? [y/N]: "
     read -r response
-    
+
     if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
         echo "Uninstallation cancelled."
         exit 0
@@ -76,7 +76,7 @@ main() {
     echo ""
     printf "Remove Jellystat installation directory (${JELLYSTAT_DIR})? [y/N]: "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         log_info "Removing Jellystat installation directory..."
         rm -rf "${JELLYSTAT_DIR}"
@@ -89,7 +89,7 @@ main() {
     echo ""
     printf "Remove Jellystat system user (${JELLYSTAT_USER})? [y/N]: "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         log_info "Removing Jellystat user and group..."
         pw userdel "${JELLYSTAT_USER}" 2>/dev/null || true
@@ -102,7 +102,7 @@ main() {
     echo ""
     printf "Remove PostgreSQL database and user? [y/N]: "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         log_info "Removing PostgreSQL database and user..."
         su -m postgres -c "psql -c 'DROP DATABASE IF EXISTS jfstat;'" 2>/dev/null || true
@@ -115,13 +115,13 @@ main() {
     echo ""
     printf "Remove PostgreSQL server completely? [y/N]: "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         log_info "Stopping and removing PostgreSQL..."
         service postgresql stop 2>/dev/null || true
         sysrc -x postgresql_enable 2>/dev/null || true
         pkg remove -y postgresql16-server postgresql16-client 2>/dev/null || true
-        
+
         echo ""
         printf "Also remove PostgreSQL data directory? [y/N]: "
         read -r response2
@@ -134,7 +134,7 @@ main() {
     echo ""
     printf "Remove Node.js? [y/N]: "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         log_info "Removing Node.js..."
         pkg remove -y node20 npm-node20 2>/dev/null || true

@@ -132,7 +132,7 @@ setup_postgresql() {
 
     # Create database user and database
     log_info "Creating PostgreSQL user and database..."
-    
+
     # Check if user exists
     if ! su -m postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${POSTGRES_USER}'\"" | grep -q 1; then
         su -m postgres -c "psql -c \"CREATE USER ${POSTGRES_USER} WITH PASSWORD '${POSTGRES_PASSWORD}';\""
@@ -304,24 +304,24 @@ jellystat_start()
             return 1
         fi
     fi
-    
+
     echo "Starting ${name}..."
-    
+
     # Source environment file
     if [ -f "${jellystat_env}" ]; then
         set -a
         . "${jellystat_env}"
         set +a
     fi
-    
+
     cd "${jellystat_dir}"
-    
+
     /usr/sbin/daemon -p ${pidfile} -u ${jellystat_user} \
         -o ${logfile} \
         ${node_path} ${jellystat_dir}/backend/server.js
-    
+
     sleep 2
-    
+
     if [ -f "${pidfile}" ] && kill -0 $(cat ${pidfile}) 2>/dev/null; then
         echo "${name} started successfully (PID: $(cat ${pidfile}))"
     else
@@ -389,7 +389,7 @@ start_jellystat() {
 print_summary() {
     # Get the jail/server IP
     IP_ADDR=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}')
-    
+
     echo ""
     echo "${GREEN}╔═══════════════════════════════════════════════════════════════╗${NC}"
     echo "${GREEN}║              Installation Complete!                           ║${NC}"
@@ -430,10 +430,10 @@ print_summary() {
 main() {
     print_banner
     check_root
-    
+
     log_info "Starting Jellystat installation..."
     echo ""
-    
+
     install_dependencies
     setup_postgresql
     create_jellystat_user
@@ -441,7 +441,7 @@ main() {
     create_env_file
     create_rc_script
     start_jellystat
-    
+
     print_summary
 }
 
