@@ -340,8 +340,8 @@ start_jellystat() {
 
     cd "${JELLYSTAT_DIR}"
 
-    # Start with PM2 using the .env file
-    pm2 start npm --name "jellystat" --cwd "${JELLYSTAT_DIR}" --env-file "${JELLYSTAT_DIR}/.env" -- run start
+    # Start with PM2 (no --env-file)
+    pm2 start npm --name "jellystat" --cwd "${JELLYSTAT_DIR}" -- run start
     pm2 save
 
     sleep 3
