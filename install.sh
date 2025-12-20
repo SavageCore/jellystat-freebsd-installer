@@ -233,6 +233,22 @@ EOF
     chown "${JELLYSTAT_USER}:${JELLYSTAT_GROUP}" "${JELLYSTAT_DIR}/.env"
 
     log_info "Environment file created at ${JELLYSTAT_DIR}/.env"
+
+    # Create wrapper script that sources env and runs node
+    cat > "${JELLYSTAT_DIR}/start.sh" << 'WRAPPER'
+#!/bin/sh
+cd /usr/local/jellystat
+. /usr/local/jellystat/.env
+export POSTGRES_USER POSTGRES_PASSWORD POSTGRES_IP POSTGRES_PORT POSTGRES_DB
+export JWT_SECRET TZ JS_LISTEN_IP REJECT_SELF_SIGNED_CERTIFICATES
+export MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK IS_EMBY_API
+exec /usr/local/bin/node /usr/local/jellystat/backend/server.js
+WRAPPER
+
+    chmod +x "${JELLYSTAT_DIR}/start.sh"
+    chown "${JELLYSTAT_USER}:${JELLYSTAT_GROUP}" "${JELLYSTAT_DIR}/start.sh"
+
+    log_info "Wrapper script created at ${JELLYSTAT_DIR}/start.sh"
 }
 
 create_rc_script() {
@@ -256,13 +272,9 @@ load_rc_config $name
 : ${jellystat_user:="jellystat"}
 : ${jellystat_group:="jellystat"}
 : ${jellystat_dir:="/usr/local/jellystat"}
-: ${jellystat_env:="${jellystat_dir}/.env"}
 
 pidfile="/var/run/${name}.pid"
 logfile="/var/log/${name}.log"
-
-# Node.js path
-node_path="/usr/local/bin/node"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
@@ -280,19 +292,9 @@ jellystat_start()
 
     echo "Starting ${name}..."
 
-    # Source environment file
-    if [ -f "${jellystat_env}" ]; then
-        . "${jellystat_env}"
-        export POSTGRES_USER POSTGRES_PASSWORD POSTGRES_IP POSTGRES_PORT POSTGRES_DB
-        export JWT_SECRET TZ JS_LISTEN_IP REJECT_SELF_SIGNED_CERTIFICATES
-        export MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK IS_EMBY_API
-    fi
-
-    cd "${jellystat_dir}"
-
     /usr/sbin/daemon -p ${pidfile} -u ${jellystat_user} \
         -o ${logfile} \
-        ${node_path} ${jellystat_dir}/backend/server.js
+        ${jellystat_dir}/start.sh
 
     sleep 2
 
