@@ -101,8 +101,8 @@ main() {
     fi
 
     # Stop service
-    log_info "Stopping Jellystat service..."
-    service jellystat stop 2>/dev/null || true
+    log_info "Stopping Jellystat..."
+    pm2 stop jellystat 2>/dev/null || true
 
     # Pull latest changes
     log_info "Pulling latest changes..."
@@ -126,19 +126,20 @@ main() {
     chown -R "${JELLYSTAT_USER}:${JELLYSTAT_GROUP}" "${JELLYSTAT_DIR}"
 
     # Start service
-    log_info "Starting Jellystat service..."
-    service jellystat start
+    log_info "Starting Jellystat..."
+    pm2 restart jellystat 2>/dev/null || pm2 start npm --name "jellystat" --cwd "${JELLYSTAT_DIR}" -- run start
+    pm2 save
 
     sleep 3
 
-    if service jellystat status >/dev/null 2>&1; then
+    if pm2 show jellystat >/dev/null 2>&1; then
         echo ""
         log_info "Jellystat updated successfully!"
         log_info "Updated from ${CURRENT_COMMIT} to ${NEW_COMMIT}"
         echo ""
     else
         log_error "Failed to start Jellystat after update"
-        log_error "Check /var/log/jellystat.log for details"
+        log_error "Check 'pm2 logs jellystat' for details"
         exit 1
     fi
 }

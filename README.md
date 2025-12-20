@@ -123,6 +123,29 @@ Removes Jellystat with options to keep or remove data.
 
 ## Service Management
 
+Jellystat runs under PM2 process manager for reliability and easy management.
+
+### PM2 Commands (Recommended)
+
+```bash
+# Check status
+pm2 status
+
+# View logs (live)
+pm2 logs jellystat
+
+# Restart Jellystat
+pm2 restart jellystat
+
+# Stop Jellystat
+pm2 stop jellystat
+
+# Start Jellystat
+pm2 start jellystat
+```
+
+### FreeBSD Service Commands
+
 ```bash
 # Start Jellystat
 service jellystat start
@@ -135,9 +158,6 @@ service jellystat restart
 
 # Check status
 service jellystat status
-
-# View logs
-tail -f /var/log/jellystat.log
 ```
 
 ## Configuration

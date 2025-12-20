@@ -58,19 +58,15 @@ main() {
     fi
 
     # Stop Jellystat service
-    log_info "Stopping Jellystat service..."
-    service jellystat stop 2>/dev/null || true
+    log_info "Stopping Jellystat..."
+    pm2 stop jellystat 2>/dev/null || true
+    pm2 delete jellystat 2>/dev/null || true
+    pm2 save 2>/dev/null || true
 
     # Disable and remove service
     log_info "Removing service configuration..."
     sysrc -x jellystat_enable 2>/dev/null || true
     rm -f /usr/local/etc/rc.d/jellystat
-
-    # Remove log file
-    rm -f /var/log/jellystat.log
-
-    # Remove PID file
-    rm -f /var/run/jellystat.pid
 
     # Ask about removing the installation directory
     echo ""

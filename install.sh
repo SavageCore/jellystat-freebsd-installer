@@ -101,6 +101,9 @@ install_dependencies() {
         openssl \
         ca_root_nss
 
+    log_info "Installing PM2 process manager..."
+    npm install -g pm2
+
     log_info "Dependencies installed successfully"
 }
 
@@ -233,22 +236,6 @@ EOF
     chown "${JELLYSTAT_USER}:${JELLYSTAT_GROUP}" "${JELLYSTAT_DIR}/.env"
 
     log_info "Environment file created at ${JELLYSTAT_DIR}/.env"
-
-    # Create wrapper script that sources env and runs node
-    cat > "${JELLYSTAT_DIR}/start.sh" << 'WRAPPER'
-#!/bin/sh
-cd /usr/local/jellystat
-. /usr/local/jellystat/.env
-export POSTGRES_USER POSTGRES_PASSWORD POSTGRES_IP POSTGRES_PORT POSTGRES_DB
-export JWT_SECRET TZ JS_LISTEN_IP REJECT_SELF_SIGNED_CERTIFICATES
-export MINIMUM_SECONDS_TO_INCLUDE_PLAYBACK IS_EMBY_API
-exec /usr/local/bin/node /usr/local/jellystat/backend/server.js
-WRAPPER
-
-    chmod +x "${JELLYSTAT_DIR}/start.sh"
-    chown "${JELLYSTAT_USER}:${JELLYSTAT_GROUP}" "${JELLYSTAT_DIR}/start.sh"
-
-    log_info "Wrapper script created at ${JELLYSTAT_DIR}/start.sh"
 }
 
 create_rc_script() {
@@ -269,12 +256,7 @@ rcvar="jellystat_enable"
 load_rc_config $name
 
 : ${jellystat_enable:="NO"}
-: ${jellystat_user:="jellystat"}
-: ${jellystat_group:="jellystat"}
 : ${jellystat_dir:="/usr/local/jellystat"}
-
-pidfile="/var/run/${name}.pid"
-logfile="/var/log/${name}.log"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
@@ -283,58 +265,32 @@ restart_cmd="${name}_restart"
 
 jellystat_start()
 {
-    if [ -f "${pidfile}" ]; then
-        if kill -0 $(cat ${pidfile}) 2>/dev/null; then
-            echo "${name} is already running."
-            return 1
-        fi
-    fi
-
     echo "Starting ${name}..."
-
-    /usr/sbin/daemon -p ${pidfile} -u ${jellystat_user} \
-        -o ${logfile} \
-        ${jellystat_dir}/start.sh
-
-    sleep 2
-
-    if [ -f "${pidfile}" ] && kill -0 $(cat ${pidfile}) 2>/dev/null; then
-        echo "${name} started successfully (PID: $(cat ${pidfile}))"
-    else
-        echo "Failed to start ${name}"
-        return 1
-    fi
+    cd "${jellystat_dir}"
+    /usr/local/bin/pm2 start npm --name "jellystat" -- run start
+    /usr/local/bin/pm2 save
+    echo "${name} started."
 }
 
 jellystat_stop()
 {
-    if [ -f "${pidfile}" ]; then
-        echo "Stopping ${name}..."
-        kill $(cat ${pidfile}) 2>/dev/null
-        rm -f ${pidfile}
-        echo "${name} stopped."
-    else
-        echo "${name} is not running."
-    fi
+    echo "Stopping ${name}..."
+    /usr/local/bin/pm2 stop jellystat 2>/dev/null
+    /usr/local/bin/pm2 save
+    echo "${name} stopped."
 }
 
 jellystat_status()
 {
-    if [ -f "${pidfile}" ]; then
-        if kill -0 $(cat ${pidfile}) 2>/dev/null; then
-            echo "${name} is running (PID: $(cat ${pidfile}))"
-            return 0
-        fi
-    fi
-    echo "${name} is not running."
-    return 1
+    /usr/local/bin/pm2 show jellystat
 }
 
 jellystat_restart()
 {
-    jellystat_stop
-    sleep 2
-    jellystat_start
+    echo "Restarting ${name}..."
+    /usr/local/bin/pm2 restart jellystat
+    /usr/local/bin/pm2 save
+    echo "${name} restarted."
 }
 
 run_rc_command "$1"
@@ -345,19 +301,28 @@ EOF
     # Enable the service
     sysrc jellystat_enable="YES"
 
+    # Setup PM2 to start on boot
+    log_info "Configuring PM2 startup..."
+    pm2 startup
+
     log_info "Service script created and enabled"
 }
 
 start_jellystat() {
-    log_info "Starting Jellystat service..."
-    service jellystat start
+    log_info "Starting Jellystat with PM2..."
+    
+    cd "${JELLYSTAT_DIR}"
+    
+    # Start with PM2 using the .env file
+    pm2 start npm --name "jellystat" --cwd "${JELLYSTAT_DIR}" --env-file "${JELLYSTAT_DIR}/.env" -- run start
+    pm2 save
 
     sleep 3
 
-    if service jellystat status >/dev/null 2>&1; then
+    if pm2 show jellystat >/dev/null 2>&1; then
         log_info "Jellystat is running!"
     else
-        log_error "Failed to start Jellystat. Check /var/log/jellystat.log for details."
+        log_error "Failed to start Jellystat. Check 'pm2 logs jellystat' for details."
         exit 1
     fi
 }
@@ -384,8 +349,13 @@ print_summary() {
     printf "%bImportant Files:%b\n" "${BLUE}" "${NC}"
     printf "  Installation:  %s\n" "${JELLYSTAT_DIR}"
     printf "  Config:        %s/.env\n" "${JELLYSTAT_DIR}"
-    printf "  Log:           /var/log/jellystat.log\n"
-    printf "  Service:       /usr/local/etc/rc.d/jellystat\n"
+    printf "\n"
+    printf "%bPM2 Commands:%b\n" "${BLUE}" "${NC}"
+    printf "  Status:   pm2 status\n"
+    printf "  Logs:     pm2 logs jellystat\n"
+    printf "  Restart:  pm2 restart jellystat\n"
+    printf "  Stop:     pm2 stop jellystat\n"
+    printf "  Start:    pm2 start jellystat\n"
     printf "\n"
     printf "%bService Commands:%b\n" "${BLUE}" "${NC}"
     printf "  Start:    service jellystat start\n"
