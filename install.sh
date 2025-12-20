@@ -292,7 +292,8 @@ restart_cmd="${name}_restart"
 
 jellystat_start()
 {
-    echo "Starting ${name}..."
+    # Set PATH to ensure node/npm/pm2 are found
+    export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     cd "${jellystat_dir}"
     /usr/local/bin/pm2 start npm --name "jellystat" -- run start
     /usr/local/bin/pm2 save
